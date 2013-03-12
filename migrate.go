@@ -247,7 +247,7 @@ func createVersionTable(db *sql.DB) error {
 
     // create the table and insert an initial value of 0
     create := `CREATE TABLE goose_db_version (
-               id PRIMARY KEY  AUTOINCREMENT  UNIQUE,
+               id INTEGER PRIMARY KEY  AUTOINCREMENT  UNIQUE,
                version_id integer NOT NULL,
                is_applied integer NOT NULL,
                tstamp text NULL default (datetime('now'))
