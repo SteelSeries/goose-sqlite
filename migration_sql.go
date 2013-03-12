@@ -42,7 +42,7 @@ func runSQLMigration(db *sql.DB, script string, v int64, direction int) error {
         query = strings.TrimSpace(query)
 
         if strings.HasPrefix(query, "-- +goose Up") {
-            directionIsActive = direction == true
+            directionIsActive = direction == 1
         } else if strings.HasPrefix(query, "-- +goose Down") {
             directionIsActive = direction == 0
         }
