@@ -2,11 +2,15 @@
 
 goose is a database migration tool.
 
+# goose-sqlite
+
+goose-sqlite is a fork of goose hacked (tastfully) to work with sqlite3. Support for other databases has been removed to minimize the overhead (in the spirit of sqlite).  Everythign else remains the same (including names).
+
 You can manage your database's evolution by creating incremental SQL or Go scripts.
 
 # Install
 
-    $ go get bitbucket.org/liamstask/goose
+    $ go get bitbucket.org/dastels/goose-sqlite
 
 This will install the `goose` binary to your `$GOPATH/bin` directory.
 
@@ -118,35 +122,12 @@ You may use the `-path` option to specify an alternate location for the folder c
 A sample dbconf.yml looks like
 
     development:
-        driver: postgres
-        open: user=liam dbname=tester sslmode=disable
+        driver: sqlite
+        open: path/to/my/database
 
 Here, `development` specifies the name of the environment, and the `driver` and `open` elements are passed directly to database/sql to access the specified database.
 
 You may include as many environments as you like, and you can use the `-env` command line option to specify which one to use. goose defaults to using an environment called `development`.
 
-goose will expand environment variables in the `open` element. For an example, see the Heroku section below.
-
-
-## Using goose with Heroku
-
-These instructions assume that you're using [Keith Rarick's Heroku Go buildpack](https://github.com/kr/heroku-buildpack-go). First, add a file to your project called (e.g.) `install_goose.go` to trigger building of the goose executable during deployment, with these contents:
-
-    // use build constraints to work around http://code.google.com/p/go/issues/detail?id=4210
-    // +build heroku
-    package main
-
-    import _ "bitbucket.org/liamstask/goose"
-
-[Set up your Heroku database(s) as usual.](https://devcenter.heroku.com/articles/heroku-postgresql)
-
-Then make use of environment variable expansion in your `dbconf.yml`:
-
-    production:
-        driver: postgres
-        open: $DATABASE_URL
-
-To run goose in production, use `heroku run`:
-
-    heroku run goose -env production up
+goose will expand environment variables in the `open` element.
 
