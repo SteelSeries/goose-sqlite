@@ -42,13 +42,6 @@ func MakeDBConf() (*DBConf, error) {
     open = os.ExpandEnv(open)
 
     // Automatically parse postgres urls
-    if drv == "postgres" {
-        parsed_open, parse_err := pq.ParseURL(open)
-        // Assumption: If we can parse the URL, we should
-        if parse_err == nil && parsed_open != "" {
-            open = parsed_open
-        }
-    }
 
     return &DBConf{
         MigrationsDir: filepath.Join(*dbPath, "migrations"),

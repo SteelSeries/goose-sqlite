@@ -139,12 +139,12 @@ func (mm *MigrationMap) Append(v int64, source string) {
     })
 }
 
-func (mm *MigrationMap) Sort(direction bool) {
+func (mm *MigrationMap) Sort(direction int) {
     sort.Sort(mm.Migrations)
 
     // set direction, and reverse order if need be
     mm.Direction = direction
-    if mm.Direction == false {
+    if mm.Direction == 0 {
         for i, j := 0, len(mm.Migrations)-1; i < j; i, j = i+1, j-1 {
             mm.Migrations[i], mm.Migrations[j] = mm.Migrations[j], mm.Migrations[i]
         }

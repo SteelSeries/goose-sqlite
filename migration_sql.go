@@ -44,7 +44,7 @@ func runSQLMigration(db *sql.DB, script string, v int64, direction int) error {
         if strings.HasPrefix(query, "-- +goose Up") {
             directionIsActive = direction == true
         } else if strings.HasPrefix(query, "-- +goose Down") {
-            directionIsActive = direction == false
+            directionIsActive = direction == 0
         }
 
         if !directionIsActive || query == "" {
