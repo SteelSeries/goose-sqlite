@@ -75,37 +75,33 @@ var goMigrationTmpl = template.Must(template.New("driver").Parse(`
 package main
 
 import (
-	"database/sql"
-	_ "github.com/bmizerany/pq"
-	"log"
-	"fmt"
+    "database/sql"
+    "log"
+    "fmt"
+    _ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	db, err := sql.Open("{{.DBDriver}}", "{{.DBOpen}}")
-	if err != nil {
-		log.Fatal("failed to open DB:", err)
-	}
-	defer db.Close()
-
-	txn, err := db.Begin()
-	if err != nil {
-		log.Fatal("db.Begin:", err)
-	}
-
-	{{ .Func }}(txn)
-
-	// XXX: drop goose_db_version table on some minimum version number?
-	versionFmt := "INSERT INTO goose_db_version (version_id, is_applied) VALUES (%v, %d);"
-	versionStmt := fmt.Sprintf(versionFmt, int64({{ .Version }}), {{ .Direction }})
-	if _, err = txn.Exec(versionStmt); err != nil {
-		txn.Rollback()
-		log.Fatal("failed to write version: ", err)
-	}
-
-	err = txn.Commit()
-	if err != nil {
-		log.Fatal("Commit() failed:", err)
-	}
+    db, err := sql.Open("{{.DBDriver}}", "{{.DBOpen}}")
+    if err != nil {
+        log.Fatal("failed to open DB:", err)
+    }
+    defer db.Close()
+        txn, err := db.Begin()
+    if err != nil {
+        log.Fatal("db.Begin:", err)
+    }
+        {{ .Func }}(txn)
+        // XXX: drop goose_db_version table on some minimum version number?
+    versionFmt := "INSERT INTO goose_db_version (version_id, is_applied) VALUES (%v, %d);"
+    versionStmt := fmt.Sprintf(versionFmt, int64({{ .Version }}), {{ .Direction }})
+    if _, err = txn.Exec(versionStmt); err != nil {
+        txn.Rollback()
+        log.Fatal("failed to write version: ", err)
+    }
+        err = txn.Commit()
+    if err != nil {
+        log.Fatal("Commit() failed:", err)
+    }
 }
 `))
