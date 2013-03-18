@@ -3,7 +3,7 @@ package main
 import (
     "flag"
     "fmt"
-    "github.com/kylelemons/go-gypsy/yaml"
+    "github.com/erh/go-gypsy/yaml"
     _ "github.com/mattn/go-sqlite3"
     "os"
     "path/filepath"
