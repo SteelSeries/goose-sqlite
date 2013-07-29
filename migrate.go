@@ -86,7 +86,7 @@ func runMigrations(conf *DBConf, migrationsDir string, target int64) {
     }
 }
 
-// collect all the valid looking migration scripts in the 
+// collect all the valid looking migration scripts in the
 // migrations folder, and key them by version
 func collectMigrations(dirpath string, current, target int64) (mm *MigrationMap, err error) {
 
@@ -202,6 +202,8 @@ func ensureDBVersion(db *sql.DB) (int64, error) {
         // for now, assume it was because the table didn't exist, and try to create it
         return 0, createVersionTable(db)
     }
+
+    defer rows.Close()
 
     // The most recent record for each migration specifies
     // whether it has been applied or rolled back.
