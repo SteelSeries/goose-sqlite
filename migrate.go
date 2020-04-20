@@ -56,14 +56,12 @@ func runMigrations(conf *DBConf, migrationsDir string, target int64, allowOutOfO
     var mm *MigrationMap
     if allowOutOfOrder {
         mm, err = collectAllUnappliedMigrations(migrationsDir, current, target, db)
-        if err != nil {
-            log.Fatal(err)
-        }
     } else {
         mm, err = collectMigrations(migrationsDir, current, target)
-        if err != nil {
-            log.Fatal(err)
-        }
+		}
+
+    if err != nil {
+        log.Fatal(err)
     }
 
     if len(mm.Migrations) == 0 {
