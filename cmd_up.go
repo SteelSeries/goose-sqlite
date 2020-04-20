@@ -10,19 +10,18 @@ var upCmd = &Command{
 	Name:    "up",
 	Usage:   "",
 	Summary: "Migrate the DB to the most recent version available",
-	Help:    `Run with the additional "outOfOrder" arg to also run older migrations that were previously missed`,
+	Help:    `Run with the "--outOfOrder" flag to also run older migrations that were previously missed`,
 }
+var outOfOrder = upCmd.Flag.Bool("outOfOrder", false, "Allow previously missed migrations to be run out of order")
 
 func upRun(cmd *Command, args ...string) {
-
-	allowOutOfOrder := args[0] == "outOfOrder"
 	conf, err := MakeDBConf()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	target := mostRecentVersionAvailable(conf.MigrationsDir)
-	runMigrations(conf, conf.MigrationsDir, target, allowOutOfOrder)
+	runMigrations(conf, conf.MigrationsDir, target, *outOfOrder)
 }
 
 // helper to identify the most recent possible version
