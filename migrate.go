@@ -51,14 +51,14 @@ func runMigrations(conf *DBConf, migrationsDir string, target int64, allowOutOfO
     current, e := ensureDBVersion(db)
     if e != nil {
         log.Fatalf("couldn't get DB version: %v", e)
-		}
+    }
 
     var mm *MigrationMap
     if allowOutOfOrder {
         mm, err = collectAllUnappliedMigrations(migrationsDir, current, target, db)
     } else {
         mm, err = collectMigrations(migrationsDir, current, target)
-		}
+    }
 
     if err != nil {
         log.Fatal(err)
@@ -150,9 +150,7 @@ func collectAllUnappliedMigrations(dirpath string, current, target int64, db *sq
 
             var record MigrationRecord
             err := row.Scan(&record.VersionId, &record.IsApplied)
-            if err == sql.ErrNoRows {
-                mm.Append(v, name)
-            } else if versionFilter(v, current, target) {
+            if (err == sql.ErrNoRows) || (record.IsApplied == 0) {
                 mm.Append(v, name)
             }
         }
