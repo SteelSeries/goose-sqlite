@@ -4,7 +4,6 @@ import (
     "database/sql"
     "errors"
     "fmt"
-    _ "github.com/mattn/go-sqlite3"
     "log"
     "os"
     "path/filepath"
@@ -12,6 +11,8 @@ import (
     "strconv"
     "strings"
     "time"
+
+    _ "github.com/mattn/go-sqlite3"
 )
 
 type MigrationRecord struct {
@@ -39,7 +40,7 @@ type MigrationMap struct {
     Direction  int            // sort direction: 1 -> Up, 0 -> Down
 }
 
-func runMigrations(conf *DBConf, migrationsDir string, target int64) {
+func runMigrations(conf *DBConf, migrationsDir string, target int64, allowOutOfOrder bool) {
 
     db, err := sql.Open(conf.Driver, conf.OpenStr)
     if err != nil {
@@ -52,7 +53,13 @@ func runMigrations(conf *DBConf, migrationsDir string, target int64) {
         log.Fatalf("couldn't get DB version: %v", e)
     }
 
-    mm, err := collectMigrations(migrationsDir, current, target)
+    var mm *MigrationMap
+    if allowOutOfOrder {
+        mm, err = collectAllUnappliedMigrations(migrationsDir, current, target, db)
+    } else {
+        mm, err = collectMigrations(migrationsDir, current, target)
+    }
+
     if err != nil {
         log.Fatal(err)
     }
@@ -62,13 +69,16 @@ func runMigrations(conf *DBConf, migrationsDir string, target int64) {
         return
     }
 
-    mm.Sort(current < target)
+    if allowOutOfOrder {
+        mm.Sort(true)
+    } else {
+        mm.Sort(current < target)
+    }
 
     fmt.Printf("goose: migrating db environment '%v', current version: %d, target: %d\n",
         conf.Env, current, target)
 
     for _, m := range mm.Migrations {
-
         var e error
 
         switch filepath.Ext(m.Source) {
@@ -107,6 +117,40 @@ func collectMigrations(dirpath string, current, target int64) (mm *MigrationMap,
             }
 
             if versionFilter(v, current, target) {
+                mm.Append(v, name)
+            }
+        }
+
+        return nil
+    })
+
+    return mm, nil
+}
+
+// collect all migrations that have not been run, including ones older than the current version
+// This is only valid for migrating up
+func collectAllUnappliedMigrations(dirpath string, current, target int64, db *sql.DB) (mm *MigrationMap, err error) {
+    mm = &MigrationMap{}
+
+    // extract the numeric component of each migration,
+    // filter out any uninteresting files,
+    // and ensure we only have one file per migration version.
+    filepath.Walk(dirpath, func(name string, info os.FileInfo, err error) error {
+
+        if v, e := numericComponent(name); e == nil {
+
+            for _, m := range mm.Migrations {
+                if v == m.Version {
+                    log.Fatalf("more than one file specifies the migration for version %d (%s and %s)",
+                        v, m.Source, filepath.Join(dirpath, name))
+                }
+            }
+
+            row := db.QueryRow("SELECT version_id, is_applied from goose_db_version where version_id=$1;", v)
+
+            var record MigrationRecord
+            err := row.Scan(&record.VersionId, &record.IsApplied)
+            if (err == sql.ErrNoRows) || (record.IsApplied == 0) {
                 mm.Append(v, name)
             }
         }
