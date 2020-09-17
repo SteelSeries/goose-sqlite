@@ -1,0 +1,42 @@
+builds:
+- id: "goose-sqlite"
+  env:
+  - CGO_ENABLED=0
+  main: .
+  binary: goose-sqlite
+  goarch:
+  - amd64
+  goos:
+  - windows
+  - darwin
+  ldflags:
+  - -s -w
+
+archives:
+- files:
+  format_overrides:
+    - goos: windows
+      format: zip
+  replacements:
+      darwin: mac
+
+checksum:
+  algorithm: sha512
+
+nfpms:
+  - id: default
+    package_name: goose-sqlite
+
+    vendor: SteelSeries ApS
+    homepage: https://steelseries.com
+    description: |
+      Goose-sqlite. From the now-defunct bitbucket.org/dastels/goose-sqlite
+    license: MIT
+
+release:
+  github:
+    owner: SteelSeries
+    name: goose-sqlite
+
+changelog:
+  sort: asc
