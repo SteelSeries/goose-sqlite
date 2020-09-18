@@ -46,7 +46,11 @@ func statusRun(cmd *Command, args ...string) {
 		log.Fatal(e)
 	}
 
-	fmt.Printf("goose: status for environment '%v'\n", conf.Env)
+	if conf.Env != "" {
+		fmt.Printf("goose: status for environment '%v'\n", conf.Env)
+	} else {
+		fmt.Printf("goose: status for DB '%v'\n", conf.OpenStr)
+	}
 	fmt.Println("    Applied At                  Migration")
 	fmt.Println("    =======================================")
 	for _, m := range mm.Migrations {

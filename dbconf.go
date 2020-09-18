@@ -11,8 +11,13 @@ import (
 )
 
 // global options. available to any subcommands.
-var dbPath = flag.String("path", "db", "folder containing db info")
+var dbConfPath = flag.String("path", "db", "folder containing db info")
 var dbEnv = flag.String("env", "development", "which DB environment to use")
+
+// Manual goose-sqlite command without configuration file
+var dbPath = flag.String("dbPath", "", "path to db file")
+var dbMigrationPath = flag.String("dbMigration", "", "path to db migrations")
+var dbDriver = flag.String("dbDriver", "", "the sql driver to use")
 
 type DBConf struct {
 	MigrationsDir string
@@ -23,8 +28,17 @@ type DBConf struct {
 
 // extract configuration details from the given file
 func MakeDBConf() (*DBConf, error) {
+	// Check to see if dbPath, dbMigrationPath, dbDriver were provided
+	if *dbPath != "" && *dbMigrationPath != "" && *dbDriver != "" {
+		return &DBConf{
+			MigrationsDir: *dbMigrationPath,
+			Env:           "",
+			Driver:        *dbDriver,
+			OpenStr:       *dbPath,
+		}, nil
+	}
 
-	cfgFile := filepath.Join(*dbPath, "dbconf.yml")
+	cfgFile := filepath.Join(*dbConfPath, "dbconf.yml")
 
 	f, err := yaml.ReadFile(cfgFile)
 	if err != nil {
@@ -45,7 +59,7 @@ func MakeDBConf() (*DBConf, error) {
 	// Automatically parse postgres urls
 
 	return &DBConf{
-		MigrationsDir: filepath.Join(*dbPath, "migrations"),
+		MigrationsDir: filepath.Join(*dbConfPath, "migrations"),
 		Env:           *dbEnv,
 		Driver:        drv,
 		OpenStr:       open,
