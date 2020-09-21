@@ -1,0 +1,24 @@
+trigger: 
+ - azure
+
+pool:
+   vmImage: 'macOS-latest'
+
+steps: 
+- task: GoTool@0
+  inputs:
+    version: '1.13'
+- task: Go@0
+  inputs:
+    command: 'get'
+    arguments: '-d'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+- bash: |
+    brew install mingw-w64
+  displayName: 'Get CGO Dependencies'
+- bash: |
+    CGO_ENABLED=1 GOARCH=amd64 GOOS=windows CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ go build -ldflags "-s -w" -o goose-sqlite
+  displayName: 'Build Windows Artifacts'
+- bash: |
+    CGO_LDFLAGS="-L/usr/lib" CGO_ENABLED=1 GOARCH=amd64 GOOS=darwin go build -ldflags "-s -w -linkmode=external" -o goose-sqlite
+  displayName: 'Build MacOS Artifacts'
