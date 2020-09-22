@@ -75,8 +75,13 @@ func runMigrations(conf *DBConf, migrationsDir string, target int64, allowOutOfO
 		mm.Sort(current < target)
 	}
 
-	fmt.Printf("goose: migrating db environment '%v', current version: %d, target: %d\n",
-		conf.Env, current, target)
+	if conf.Env != "" {
+		fmt.Printf("goose: migrating db environment '%v', current version: %d, target: %d\n",
+			conf.Env, current, target)
+	} else {
+		fmt.Printf("goose: migrating db '%v', current version: %d, target: %d\n",
+			conf.OpenStr, current, target)
+	}
 
 	for _, m := range mm.Migrations {
 		var e error
