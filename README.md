@@ -1,4 +1,6 @@
 # goose
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSteelSeries%2Fgoose-sqlite.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FSteelSeries%2Fgoose-sqlite?ref=badge_shield)
+
 
 goose is a database migration tool.
 
@@ -131,3 +133,7 @@ You may include as many environments as you like, and you can use the `-env` com
 
 goose-sqlite will expand environment variables in the `open` element.
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSteelSeries%2Fgoose-sqlite.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FSteelSeries%2Fgoose-sqlite?ref=badge_large)
